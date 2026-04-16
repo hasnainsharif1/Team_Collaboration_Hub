@@ -1,4 +1,13 @@
 import User from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
+
+const generateToken = (userId) => {
+  return jwt.sign(
+    { userId },
+    process.env.JWT_SECRET || 'secret',
+    { expiresIn: process.env.JWT_EXPIRY || '7d' }
+  );
+};
 
 export const registerUser = async (req, res) => {
   try {
@@ -16,8 +25,11 @@ export const registerUser = async (req, res) => {
     const user = new User({ firstName, lastName, email, password, phone, university, department });
     await user.save();
 
+    const token = generateToken(user._id);
+
     return res.status(201).json({
       message: 'User registered successfully.',
+      token,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -53,8 +65,11 @@ export const loginUser = async (req, res) => {
 
     await user.updateLoginTime();
 
+    const token = generateToken(user._id);
+
     return res.status(200).json({
       message: 'Login successful.',
+      token,
       user: {
         id: user._id,
         firstName: user.firstName,

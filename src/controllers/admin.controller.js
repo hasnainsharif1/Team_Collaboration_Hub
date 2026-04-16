@@ -1,4 +1,13 @@
 import Admin from '../models/admin.model.js';
+import jwt from 'jsonwebtoken';
+
+const generateToken = (adminId) => {
+  return jwt.sign(
+    { adminId },
+    process.env.JWT_SECRET || 'secret',
+    { expiresIn: process.env.JWT_EXPIRY || '7d' }
+  );
+};
 
 export const loginAdmin = async (req, res) => {
   try {
@@ -18,8 +27,11 @@ export const loginAdmin = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
+    const token = generateToken(admin._id);
+
     return res.status(200).json({
       message: 'Admin logged in successfully.',
+      token,
       admin: admin.getProfile(),
     });
   } catch (error) {
