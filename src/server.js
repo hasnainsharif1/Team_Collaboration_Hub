@@ -6,6 +6,7 @@ import initAdmin from './config/initAdmin.js';
 import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
 import errorHandler from './middleware/errorHandler.js';
+import Admin from './models/admin.model.js';
 
 dotenv.config();
 
@@ -23,7 +24,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Team Collaboration Hub backend is running' });
 });
 
-// Global error handler
+
+// Global error handler (must be last)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
