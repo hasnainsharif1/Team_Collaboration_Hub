@@ -312,3 +312,5 @@ If you encounter issues:
 ================================================================================
                               END OF SETUP GUIDE
 ================================================================================
+
+secret_key = node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"

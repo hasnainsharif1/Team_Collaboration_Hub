@@ -97,3 +97,7 @@ export const getUserProfile = async (req, res) => {
     return res.status(500).json({ message: 'Server error while fetching user.', error: error.message });
   }
 };
+
+export const logoutUser = async (req, res) => {
+  return res.status(200).json({ message: 'User logged out successfully.' });
+};
