@@ -1,8 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import connectDB from './config/database.js';
-import initAdmin from './config/initAdmin.js';
 import adminRoutes from './routes/admin.routes.js';
 import userRoutes from './routes/user.routes.js';
 import projectRoutes from './routes/project.routes.js';
@@ -14,13 +16,41 @@ import commentRoutes from './routes/comment.routes.js';
 import meetingNotesRoutes from './routes/meeting-notes.routes.js';
 import checkinRoutes from './routes/checkin.routes.js';
 import errorHandler from './middleware/errorHandler.js';
-import Admin from './models/admin.model.js';
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 login attempts per windowMs
+  message: 'Too many login attempts, please try again later.',
+});
+
+// Logging
+app.use(morgan('combined'));
+
+// General middleware
+app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
@@ -48,7 +78,6 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   await connectDB();
-  await initAdmin();
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -1,8 +1,15 @@
 import express from "express";
+import rateLimit from 'express-rate-limit';
 import { registerUser, loginUser, logoutUser } from "../controllers/user.controller.js";
 import validateRequest from "../middleware/validateRequest.js";
 
 const router = express.Router();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 login attempts per windowMs
+  message: 'Too many login attempts, please try again later.',
+});
 
 router.post(
   "/register",
@@ -24,6 +31,7 @@ router.post(
 
 router.post(
   "/login",
+  authLimiter,
   validateRequest({
     body: {
       email: {
