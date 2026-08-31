@@ -1,1 +1,0 @@
-"""Notification database models."""
