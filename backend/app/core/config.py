@@ -1,13 +1,19 @@
 """Core configuration settings."""
 
 from functools import lru_cache
+from pathlib import Path
 from typing import List, Union
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Dynamically locate the .env file in the backend directory
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_FILE_PATH = BASE_DIR / ".env"
+
 
 class Settings(BaseSettings):
+    """Application Settings loaded automatically from .env environment variables."""
     APP_NAME: str = "Team Collaboration Hub"
     ENV: str = "development"
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/team_collaboration"
@@ -28,7 +34,7 @@ class Settings(BaseSettings):
         return "postgresql+asyncpg://postgres:postgres@localhost:5432/team_collaboration"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(ENV_FILE_PATH),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore"
@@ -38,3 +44,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
