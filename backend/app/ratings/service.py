@@ -1,1 +1,0 @@
-"""Rating business logic."""

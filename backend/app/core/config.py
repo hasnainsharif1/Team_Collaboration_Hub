@@ -1,6 +1,7 @@
 """Core configuration settings."""
 
 from functools import lru_cache
+<<<<<<< HEAD
 from pathlib import Path
 from typing import List, Union
 
@@ -14,6 +15,15 @@ ENV_FILE_PATH = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     """Application Settings loaded automatically from .env environment variables."""
+=======
+from typing import List, Union
+
+from pydantic import AnyHttpUrl, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+>>>>>>> c711996c105a3a218b7343120a357543694e6be9
     APP_NAME: str = "Team Collaboration Hub"
     ENV: str = "development"
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/team_collaboration"
@@ -34,7 +44,11 @@ class Settings(BaseSettings):
         return "postgresql+asyncpg://postgres:postgres@localhost:5432/team_collaboration"
 
     model_config = SettingsConfigDict(
+<<<<<<< HEAD
         env_file=str(ENV_FILE_PATH),
+=======
+        env_file=".env",
+>>>>>>> c711996c105a3a218b7343120a357543694e6be9
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore"

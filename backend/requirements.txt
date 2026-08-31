@@ -9,4 +9,11 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 httpx
+<<<<<<< HEAD
 websockets
+=======
+websockets
+
+
+
+>>>>>>> c711996c105a3a218b7343120a357543694e6be9
