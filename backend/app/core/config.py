@@ -26,12 +26,15 @@ class Settings(BaseSettings):
     @classmethod
     def assemble_db_connection(cls, v: Union[str, None]) -> str:
         if isinstance(v, str):
-            if v.startswith("postgresql://"):
+            if v.startswith("postgresql+psycopg2://"):
+                return v.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
+            elif v.startswith("postgresql://"):
                 return v.replace("postgresql://", "postgresql+asyncpg://", 1)
             elif v.startswith("postgres://"):
                 return v.replace("postgres://", "postgresql+asyncpg://", 1)
             return v
         return "postgresql+asyncpg://postgres:postgres@localhost:5432/team_collaboration"
+
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE_PATH),

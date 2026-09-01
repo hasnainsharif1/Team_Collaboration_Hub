@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -5,16 +7,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1 import admin, auth, feedback, files, notifications, search, tasks, teams, users, ws
 from app.core.config import get_settings
-from app.db.session import get_db
+from app.db.session import engine, get_db
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    # Clean up database engine connection pool on shutdown
+    await engine.dispose()
+
 
 app = FastAPI(
     title=settings.APP_NAME,
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
+
 
 # Configure CORS Middleware
 app.add_middleware(
