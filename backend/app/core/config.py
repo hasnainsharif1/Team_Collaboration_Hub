@@ -44,6 +44,6 @@ class Settings(BaseSettings):
     )
 
 
-@lru_cache
+@lru_cache  #speeds up slow functions by saving recent results
 def get_settings() -> Settings:
     return Settings()
