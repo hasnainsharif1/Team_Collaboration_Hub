@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
@@ -5,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1 import admin, auth, feedback, files, notifications, search, tasks, teams, users, ws
+from app.api.v1 import admin, auth, feedback, files, join_requests, notifications, search, tasks, teams, users, ws
+from app.services.task_overdue import run_overdue_checker
 from app.core.config import get_settings
 from app.db.session import engine, get_db
 
@@ -14,8 +16,15 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Start background overdue task checker
+    overdue_task = asyncio.create_task(run_overdue_checker())
     yield
-    # Clean up database engine connection pool on shutdown
+    # Gracefully cancel background checker and clean up engine
+    overdue_task.cancel()
+    try:
+        await overdue_task
+    except asyncio.CancelledError:
+        pass
     await engine.dispose()
 
 
@@ -41,6 +50,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(teams.router, prefix="/api/v1/teams", tags=["teams"])
+app.include_router(join_requests.router, prefix="/api/v1/join-requests", tags=["join-requests"])
 app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
 app.include_router(files.router, prefix="/api/v1/files", tags=["files"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
